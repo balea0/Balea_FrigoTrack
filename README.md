@@ -137,30 +137,7 @@ Le richieste successive che utilizzano una sessione non più valida vengono rifi
 ## Diagramma di sequenza
 
 ```mermaid
-sequenceDiagram
-    participant C as Client
-    participant S as Server
 
-    C->>C: Generazione chiavi Diffie-Hellman
-    C->>S: Richiesta handshake
-    S->>S: Validazione e generazione chiavi
-    S-->>C: Chiave pubblica e identificativo sessione
-
-    Note over C,S: Calcolo del segreto condiviso
-
-    C->>C: Validazione e cifratura misura
-    C->>S: Invio telemetria cifrata
-    S->>S: Decifratura e validazione
-    S->>S: Salvataggio e controllo temperatura
-    S-->>C: Risposta cifrata
-
-    C->>S: Richiesta consultazione cifrata
-    S-->>C: Misurazioni cifrate
-
-    C->>S: Richiesta chiusura cifrata
-    S->>S: Eliminazione sessione
-    S-->>C: Conferma cifrata
-```
 
 ## Test e verifiche
 
