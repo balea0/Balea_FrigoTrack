@@ -1,0 +1,50 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Risposta telemetria",
+    "type": "object",
+    "required": [
+        "ack",
+        "alarm"
+    ],
+    "properties": {
+        "ack": {
+            "type": "boolean",
+            "const": true
+        },
+        "alarm": {
+            "type": "boolean"
+        },
+        "message": {
+            "type": "string",
+            "minLength": 1
+        },
+        "temperature_c": {
+            "type": "number",
+            "minimum": -40,
+            "maximum": 40
+        }
+    },
+    "if": {
+        "properties": {
+            "alarm": {
+                "const": true
+            }
+        },
+        "required": [ "alarm" ]
+    },
+    "then": {
+        "required": [
+            "message",
+            "temperature_c"
+        ]
+    },
+    "else": {
+        "not": {
+            "anyOf": [
+                { "required": [ "message" ] },
+                { "required": [ "temperature_c" ] }
+            ]
+        }
+    },
+    "additionalProperties": false
+}

@@ -38,7 +38,7 @@ Dopo aver decifrato i dati, salva le misurazioni nel file `misure.json`, control
 ### File principali
 
 - `Client.cs`: logica dell'applicazione Client.
-- `Program.cs`: configurazione e gestione degli endpoint del Server.
+- `Server.cs`: configurazione e gestione degli endpoint del Server.
 - `DiffieHellman.cs`: gestione dello scambio delle chiavi.
 - `Cifratura.cs`: cifratura e decifratura AES-GCM.
 - `Validazione.cs`: validazione dei messaggi tramite JSON Schema.
@@ -137,7 +137,19 @@ Le richieste successive che utilizzano una sessione non più valida vengono rifi
 ## Diagramma di sequenza
 
 ```mermaid
-
+sequenceDiagram
+    participant Client
+    participant Server
+    Client->>Server: Handshake con A
+    Server-->>Client: Sessione e B
+    Note over Client,Server: Calcolo del segreto condiviso
+    Client->>Server: Misura cifrata
+    Server-->>Client: Conferma cifrata
+    Client->>Server: Richiesta misure cifrata
+    Server-->>Client: Misure cifrate
+    Client->>Server: Chiusura cifrata
+    Server-->>Client: Conferma cifrata
+```
 
 ## Test e verifiche
 
@@ -152,7 +164,7 @@ Durante lo sviluppo sono stati verificati:
 - Il rifiuto delle richieste effettuate con una sessione chiusa.
 - La gestione delle richieste verso endpoint inesistenti.
 
-Restano da verificare separatamente il rifiuto di un messaggio cifrato manomesso e quello di una sessione mai creata.
+Il Client include anche i test del messaggio cifrato manomesso (HTTP 400) e della sessione inesistente (HTTP 401).
 
 ## Sicurezza e limitazioni
 

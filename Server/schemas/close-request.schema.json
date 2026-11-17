@@ -1,0 +1,15 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Richiesta chiusura sessione",
+    "type": "object",
+    "required": [
+        "action"
+    ],
+    "properties": {
+        "action": {
+            "type": "string",
+            "enum": [ "close" ]
+        }
+    },
+    "additionalProperties": false
+}

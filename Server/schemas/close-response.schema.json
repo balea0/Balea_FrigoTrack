@@ -1,0 +1,15 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Risposta chiusura sessione",
+    "type": "object",
+    "required": [
+        "closed"
+    ],
+    "properties": {
+        "closed": {
+            "type": "boolean",
+            "const": true
+        }
+    },
+    "additionalProperties": false
+}
