@@ -101,7 +101,7 @@ Anche le risposte applicative del Server vengono cifrate.
 
 Il Server verifica le temperature delle misurazioni ricevute.
 
-Per i prodotti farmaceutici viene controllato l'intervallo compreso tra 2 °C e 8 °C.
+Per la simulazione sono stati scelti questi limiti: farmaci da 2 °C a 8 °C, alimenti freschi da 0 °C a 5 °C e surgelati a -18 °C o meno. Questi valori sono impostati nel Server e servono per il progetto scolastico.
 
 Quando la temperatura non rispetta i limiti stabiliti, il Server genera un allarme che viene comunicato al Client.
 
