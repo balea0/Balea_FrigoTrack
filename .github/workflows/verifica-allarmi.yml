@@ -1,0 +1,52 @@
+name: Verifica allarmi FrigoTrack
+on:
+  push:
+    paths:
+      - '.github/workflows/verifica-allarmi.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Imposta temperature fuori limite per il solo test
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path("Client/Client.cs")
+          c=p.read_text()
+          for old,new in [("temperaturaBase = 5.2","temperaturaBase = 7.0"),("temperaturaBase = -18.5","temperaturaBase = -16.0")]:
+              if c.count(old)!=1: raise SystemExit("Valore da modificare non trovato: "+old)
+              c=c.replace(old,new)
+          p.write_text(c)
+          PY
+      - name: Compila la soluzione
+        run: |
+          dotnet restore FrigoTrack.sln
+          dotnet build FrigoTrack.sln --no-restore --configuration Release
+      - name: Verifica allarmi e test del Client
+        shell: bash
+        run: |
+          set -euo pipefail
+          dotnet run --project Server/Server.csproj --no-build --no-launch-profile -c Release >/tmp/frigotrack-server.log 2>&1 &
+          serverpid=$!
+          trap 'kill "$serverpid" 2>/dev/null || true' EXIT
+          ready=0
+          for i in $(seq 1 30); do
+            if [ "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:5000/api/inesistente || true)" = "404" ]; then ready=1; break; fi
+            sleep 1
+          done
+          if [ "$ready" != 1 ]; then cat /tmp/frigotrack-server.log; exit 1; fi
+          printf '\n' | timeout 120 dotnet run --project Client/Client.csproj --no-build --no-launch-profile -c Release | tee /tmp/frigotrack-client.log
+          grep -Fq 'ALLARME! CELLA-BG-007' /tmp/frigotrack-client.log
+          grep -Fq 'ALLARME! CELLA-MI-008' /tmp/frigotrack-client.log
+          grep -Fq 'ALLARME! CELLA-CO-009' /tmp/frigotrack-client.log
+          grep -Fq 'TEST BUSTA MANOMESSA SUPERATO' /tmp/frigotrack-client.log
+          grep -Fq 'TEST SESSIONE INESISTENTE SUPERATO' /tmp/frigotrack-client.log
+          grep -Fq 'Sessione chiusa correttamente' /tmp/frigotrack-client.log
+          if grep -Fq 'NON SUPERATO' /tmp/frigotrack-client.log; then exit 1; fi
