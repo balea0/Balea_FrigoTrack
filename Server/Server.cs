@@ -232,9 +232,20 @@ app.MapPost("/api/telemetry", (JsonElement datiRicevuti) =>
     double temperatura = misuraRicevuta.RootElement
         .GetProperty("temperature_c").GetDouble();
 
-    // Controlla la temperatura dei farmaci
-    bool allarme = tipo == "pharma" &&
-                   (temperatura < 2 || temperatura > 8);
+    // Controlla i limiti di temperatura per ogni tipo di merce
+    bool allarme = false;
+
+    // Farmaci: da 2 a 8 gradi
+    if (tipo == "pharma" && (temperatura < 2 || temperatura > 8))
+        allarme = true;
+
+    // Alimenti freschi: da 0 a 5 gradi
+    if (tipo == "food" && (temperatura < 0 || temperatura > 5))
+        allarme = true;
+
+    // Surgelati: non sopra -18 gradi
+    if (tipo == "frozen" && temperatura > -18)
+        allarme = true;
 
     string conferma;
 
